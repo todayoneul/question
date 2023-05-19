@@ -82,8 +82,13 @@ node *makehuffmantree(char input[])
                 if (tree[min]->freq > tree[j]->freq){// min인덱스 빈도수 보다 빈도수가 작은 경우
                     min = j;
                 }
+            }else if(tree[min]->freq == tree[j]->freq){
+                    min=j;
+                }
             }
-        }
+        
+
+
         // 두번째로 작은 수 찾기
         j = 0;
         while (check[j] == -1 || j == min)
@@ -98,7 +103,15 @@ node *makehuffmantree(char input[])
                     }
                 }
             }
+            else if(tree[min2]->freq == tree[j]->freq){
+                    if(j != min){
+                        min2 =j;
+                    }
+                
+            }
         }
+
+        
         tree[min] = makenode(NULL, tree[min]->freq + tree[min2]->freq, tree[min], tree[min2]);// min과 min2인덱스의 빈도수를 합친 빈도수로 새 노드 생성
         // 새로 만든 노드를 min인덱스 자리에 넣는다.
         check[min2] = -1; // min2인덱스는 min인덱스 자리의 노드에 합쳐졌으므로
@@ -163,12 +176,12 @@ int main()
     root = makehuffmantree(input);   // 허프만코드를 이용한 트리 생성
     make_code(root, str, 0, code);  // 트리를 사용한 알파벳 별 가변길이 코드 생성
 
-    printf("%s-> %c\n\n", code[0], 'a');
-    printf("%s-> %c\n\n", code[5], 'f');
-    printf("%s-> %c\n\n", code[4], 'e');
-    printf("%s-> %c\n\n", code[3], 'd');
-    printf("%s-> %c\n\n", code[2], 'c');
-    printf("%s-> %c\n\n", code[1], 'b');
+    printf("%s-> %c\n", code[0], 'a');
+    printf("%s-> %c\n", code[5], 'f');//5
+    printf("%s-> %c\n", code[4], 'e');
+    printf("%s-> %c\n", code[5], 'd');
+    printf("%s-> %c\n", code[3], 'c');//3
+    printf("%s-> %c", code[1], 'b');
 
     for (int i = 0; i < 6; i++){
         free(code[i]);
