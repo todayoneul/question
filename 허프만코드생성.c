@@ -29,8 +29,8 @@ node *makehuffmantree(char input[])
     int temp_n = 0;
     int min = 0;  // 제일 빈도수가 작은 index
     int min2 = 0; // 두 번째로 빈도수가 작은 index
-    int freq[6] = {0, 0, 0, 0, 0, 0};    // A, B, C, D, E, F 빈도 수
-    int check[6] = {0, 0, 0, 0, 0, 0};   // 합쳐졌는지 확인(합쳐져서 살펴 볼 필요가 없으면 -1)
+    int freq[6] =  {0, 0, 0, 0, 0, 0};    // a, b, c, d, e, f 빈도 수
+    int check[6] = {0, 0, 0, 0, 0, 0};   // 합쳐졌는지 확인(합쳐져서 살펴 볼 필요가 없으면 -1, 동일한 빈도수 체크를 위한 1)
     node *tree[6];// 비교할 노드 배열
     node *new_node;// 새 노드
 
@@ -70,60 +70,80 @@ node *makehuffmantree(char input[])
     tree[4] = makenode('e', freq[4], NULL, NULL); // e
     tree[5] = makenode('f', freq[5], NULL, NULL); // f
 
-    for (i = 0; i < 5; i++){
+    for (i = 0; i < 5; i++){//(알파벳 개수 -1회) 만큼 반복
         // 가장 작은 수 찾기
         j = 0;
+        /*
         while (check[j] == -1)
             j++; // 합쳐진 노드를 제외한 배열 중 가장 앞 index
+        */
         min = j; // 우선 제일 작다고 가정
 
         for (j = min; j < 6; j++){ // 모든 배열을 검사
             if (check[j] != -1){ // 이미 합쳐진 노드가 아니면
+
                 if (tree[min]->freq > tree[j]->freq){// min인덱스 빈도수 보다 빈도수가 작은 경우
                     min = j;
-                }
-            }else if(tree[min]->freq == tree[j]->freq){
-                    min=j;
+                    
+                    for (int k = min+1; k < 6; k++){// 우리 실습의 경우 빈도수가 동일할 경우 더 작은 코드를 갖기 때문에
+                    if(check[k]==0){
+                        if(tree[min]->freq == tree[k]->freq){
+                            min = k;
+                            }
+                        }
+                    }
+
                 }
             }
-        
+        }
 
 
         // 두번째로 작은 수 찾기
         j = 0;
+
+        /*
         while (check[j] == -1 || j == min)
             j++; // 합쳐진 노드와 최소 노드 제외한 배열 중 가장 앞 index
+        */
+
         min2 = j; // 두번째로 작다고 가정
         for (j = min2; j < 6; j++){
             if (check[j] != -1){ // 이미 합쳐진 노드가 아니면
-                if (tree[min2]->freq > tree[j]->freq){
-                    // min2인덱스 빈도수 보다 빈도수가 작은 경우
+                if (tree[min2]->freq > tree[j]->freq){// min2인덱스 빈도수 보다 빈도수가 작은 경우
                     if (j != min){ // 가장 작은 index가 아닌 경우
                         min2 = j;
+
+                        for(int k = min2+1; k<min; k++){
+                            if(check[k]==0){
+                                if(tree[min2]->freq == tree[k]->freq){
+                                min2 = k;
+                                }
+                            }
+                        }
+        
                     }
                 }
-            }
-            else if(tree[min2]->freq == tree[j]->freq){
-                    if(j != min){
-                        min2 =j;
-                    }
-                
             }
         }
 
         
-        tree[min] = makenode(NULL, tree[min]->freq + tree[min2]->freq, tree[min], tree[min2]);// min과 min2인덱스의 빈도수를 합친 빈도수로 새 노드 생성
+        tree[min] = makenode(65+i, tree[min]->freq + tree[min2]->freq, tree[min], tree[min2]);// min과 min2인덱스의 빈도수를 합친 빈도수로 새 노드 생성
         // 새로 만든 노드를 min인덱스 자리에 넣는다.
+        check[min] = 1;
         check[min2] = -1; // min2인덱스는 min인덱스 자리의 노드에 합쳐졌으므로
     }
     return tree[min]; // 만들어진 트리의 루트 노드
 }
 
+
+
+
+
 // 알파멧마다 가변 길이 코드 제공함수(n은 루트 노드)
 void make_code(node *n, char str[], int len, char *code[])
 {
     if (n->left == NULL && n->right == NULL){ // n이 단노드인 경우
-        str[len] = '\0'; // 문장의 끝을 str끝에 넣어주고 단 노드의 알파벳을 확인하여 code의 적절한 위치에 str문자열을 넣음
+        str[len] = '\0'; // 문장의 끝(NULL)을 str끝에 넣어주고 단 노드의 알파벳을 확인하여 code의 적절한 위치에 str문자열을 넣음
         switch (n->alphabet)
         {
         case ('a'):
@@ -177,11 +197,11 @@ int main()
     make_code(root, str, 0, code);  // 트리를 사용한 알파벳 별 가변길이 코드 생성
 
     printf("%s-> %c\n", code[0], 'a');
-    printf("%s-> %c\n", code[5], 'f');//5
+    printf("%s-> %c\n", code[5], 'f');
     printf("%s-> %c\n", code[4], 'e');
     printf("%s-> %c\n", code[5], 'd');
-    printf("%s-> %c\n", code[3], 'c');//3
-    printf("%s-> %c", code[1], 'b');
+    printf("%s-> %c\n", code[3], 'c');
+    printf("%s-> %c"  , code[1], 'b');
 
     for (int i = 0; i < 6; i++){
         free(code[i]);
